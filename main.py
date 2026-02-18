@@ -76,10 +76,12 @@ def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, message):
             result+=" "
         else:
             offsets[2] = (offsets[2] + 1) % 26
-            if(offsets[2] == notch[1]):
-                if(offsets[1] == notch[1]-1):
-                    offsets[0] = (offsets[0] + 1) % 26
+            if(offsets[1] == notch[1]-1):
+                offsets[0] = (offsets[0] + 1) % 26
                 offsets[1] = (offsets[1] + 1) % 26
+            if(offsets[2] == notch[2]):
+                offsets[1] = (offsets[1] + 1) % 26
+
 
 
             c = (charToInt(i) + offsets[2]) % 26
@@ -103,7 +105,7 @@ def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, message):
             c = (c - offsets[2]) % 26
             
             result += intToChar(c)
-            print(offsets)
+            print(intToChar(offsets[0]), intToChar(offsets[1]), intToChar(offsets[2]))
     return result
 
 
