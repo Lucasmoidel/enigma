@@ -1,13 +1,13 @@
 def charToInt(char):
     letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
     for i in range(len(letters)):
-        if (char == letters[i]):
+        if (char.lower() == letters[i]):
             return i
 def intToChar(num):
     letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
     return letters[num]
         
-def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, message):
+def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, plugs, message):
 
     rotors = [[], [], [], []]
     offsets = [charToInt("a"), charToInt("a"), charToInt("a")]
@@ -83,8 +83,9 @@ def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, message):
                 offsets[1] = (offsets[1] + 1) % 26
 
 
+            c = plugs[charToInt(i)]
 
-            c = (charToInt(i) + offsets[2]) % 26
+            c = (c + offsets[2]) % 26
             c = (rotors[3][c] - offsets[2]) % 26
 
             c = (c + offsets[1]) % 26
@@ -104,6 +105,8 @@ def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, message):
             c = rotors[3].index((c + offsets[2]) % 26)
             c = (c - offsets[2]) % 26
             
+            c = plugs.index(c)
+
             result += intToChar(c)
             print(intToChar(offsets[0]), intToChar(offsets[1]), intToChar(offsets[2]))
     return result
@@ -111,7 +114,7 @@ def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, message):
 
 rotors = ["", "", "", ""]
 offsets = [charToInt("a"), charToInt("a"), charToInt("a")]
-
+plugs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
 
 
 while len(rotors[0]) == 0:
@@ -151,7 +154,21 @@ def setoffset():
     else:
         print(ref + " has the wrong number of letters")
         setoffset()
+
+def setplugs():
+    ref = input("(optional) Plug board settings. Example \"AG TE PO ML\": ")
+    if len(ref) > 0:
+        arr = ref.split(" ")
+        for i in arr:
+            if i.isalpha():
+                plugs[charToInt(i[0])] = charToInt(i[1])
+                plugs[charToInt(i[1])] = charToInt(i[0])
+            else: 
+                print(ref + " is not a valid input")
+                setplugs()    
+
 setrotors()
 setoffset()
+setplugs()
 
-print(enigma(rotors[0], rotors[1], rotors[2], rotors[3], offsets[0], offsets[1], offsets[2], input("type your message here: ").lower()))
+print(enigma(rotors[0], rotors[1], rotors[2], rotors[3], offsets[0], offsets[1], offsets[2], plugs, input("type your message here: ").lower()))
