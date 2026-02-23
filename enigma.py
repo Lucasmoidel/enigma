@@ -84,7 +84,6 @@ def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, plugs, message):
 
 
             c = plugs[charToInt(i)]
-
             c = (c + offsets[2]) % 26
             c = (rotors[3][c] - offsets[2]) % 26
 
@@ -95,10 +94,12 @@ def enigma(reflector, r1, r2, r3, offset1, offset2, offset3, plugs, message):
             c = (rotors[1][c] - offsets[0]) % 26
 
             c = rotors[0][c]
-            
+
             c = rotors[1].index((c + offsets[0]) % 26)
+            print(c)
+
             c = (c - offsets[0]) % 26
-            
+
             c = rotors[2].index((c + offsets[1]) % 26)
             c = (c - offsets[1]) % 26
             
