@@ -3,13 +3,18 @@
 #include <algorithm> // Required for std::transform
 #include <cctype>    // Required for std::tolower
 #include "enigma.h"
+//#include "main.cpp"
 
-std::string toLower(std::string str){
+int enigma::mod(int a, int b){
+    return ((a % b) + b) % b;
+}
+
+std::string enigma::toLower(std::string str){
     std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c){ return std::tolower(c);});
     return str;
 }
 
-int charToInt(std::string letter){
+int enigma::charToInt(std::string letter){
     std::string letters[26] = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     for (int i = 0; i < 26; i++){
         if(letters[i] == toLower(letter)){
@@ -19,12 +24,23 @@ int charToInt(std::string letter){
     return -1;
 }
 
-std::string intToChar(int num){
+std::string enigma::intToChar(int num){
     std::string letters[26] = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     return letters[num];
 }
 
-std::string enigma(std::string reflector, std::string r1, std::string r2, std::string r3, int offset1, int offset2, int offset3, int plugs[], std::string  message){
+int enigma::index(int arr[], int size, int x){
+    for (int i = 0; i < size; i++){
+        if (arr[i] == x){
+            return i;
+        }
+    }
+    return -1;
+}
+
+std::string  enigma::enigma(std::string reflector, std::string r1, std::string r2, std::string r3, std::string offset1, std::string offset2, std::string offset3, int plugs[], std::string  message){
+    
+    
     int rotors[4][26];
     int offsets[3] = {charToInt("a"), charToInt("a"), charToInt("a")};
     int notch[3];
@@ -105,68 +121,53 @@ std::string enigma(std::string reflector, std::string r1, std::string r2, std::s
     }
 
 
-    offsets[0] = offset1;
-    offsets[1] = offset2;
-    offsets[2] = offset3;
+    offsets[0] = charToInt(offset1);
+    offsets[1] = charToInt(offset2);
+    offsets[2] = charToInt(offset3);
 
     std::string result;
     int c = 0;
     for (int i = 0; i < message.length(); i++){
-        if (message.substr(i, i+1) == " "){
-            result+=" ";
+        //if (charToInt(message.substr(i, i+1)) == -1){
+        if (false){
+            result+=message.substr(i, 1);
         } else {
-            offsets[2] = (offsets[2] + 1) % 26;
-            if(offsets[1] == notch[1]-1){
-                offsets[0] = (offsets[0] + 1) % 26;
-                offsets[1] = (offsets[1] + 1) % 26;
+
+            offsets[2] = mod((offsets[2] + 1), 26);
+            if (offsets[1] == notch[1]-1){
+                offsets[0] = mod((offsets[0] + 1), 26);
+                offsets[1] = mod((offsets[1] + 1), 26);
             }
             if(offsets[2] == notch[2]){
-                offsets[1] = (offsets[1] + 1) % 26;
+                offsets[1] = mod((offsets[1] + 1), 26);
             }
 
-            c = plugs[charToInt(message.substr(i, i+1))];
-            
-            c = (c + offsets[2]) % 26;
-            c = (rotors[3][c] - offsets[2]) % 26;
+            c = plugs[charToInt(message.substr(i, 1))];
+            c = mod((c + offsets[2]), 26);
+            c = mod((rotors[3][c] - offsets[2]), 26);
 
-            c = (c + offsets[1]) % 26;
-            c = (rotors[2][c] - offsets[1]) % 26;
+            c = mod((c + offsets[1]), 26);
+            c = mod((rotors[2][c] - offsets[1]), 26);
 
-            c = (c + offsets[0]) % 26;
-            c = (rotors[1][c] - offsets[0]) % 26;
+            c = mod((c + offsets[0]), 26);
+            c = mod((rotors[1][c] - offsets[0]), 26);
 
             c = rotors[0][c];
             
-            for (int i = 0; i < 26; i++){
-                if(rotors[1][i] == (c + offsets[0]) % 26){
-                    c = i;
-                }
-            }
+            c = index(rotors[1], 26, mod((c + offsets[0]), 26));
+            std::cout << c << "\n";
+            c = mod((c - offsets[0]), 26);
 
-            c = (c - offsets[0]) % 26;
-
-            for (int i = 0; i < 26; i++){
-                if(rotors[2][i] == (c + offsets[1]) % 26){
-                    c = i;
-                }
-            }            
-            c = (c - offsets[1]) % 26;
+            c = index(rotors[2], 26, mod((c + offsets[1]), 26));
+            c = mod((c - offsets[1]), 26);
             
-            for (int i = 0; i < 26; i++){
-                if(rotors[3][i] == (c + offsets[2]) % 26){
-                    c = i;
-                }
-            }           
-            c = (c - offsets[2]) % 26;
-
-            for (int i = 0; i < 26; i++){
-                if(plugs[i] == c){
-                    c = i;
-                }
-            }
+            c = index(rotors[3], 26, mod((c + offsets[2]), 26));
+            c = mod((c - offsets[2]), 26);
+            
+            c = index(plugs, 26, c);
 
             result += intToChar(c);
         }
     }
     return result;
-}
+} 
